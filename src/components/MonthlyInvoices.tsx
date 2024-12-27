@@ -135,6 +135,27 @@ export function MonthlyInvoices() {
     }
   };
 
+  const handleDownloadPDF = (invoice: Invoice) => {
+    if (!invoice.pdfData || !invoice.pdfName) return;
+
+    const byteCharacters = atob(invoice.pdfData);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: "application/pdf" });
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = invoice.pdfName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const monthNames = [
     "January",
     "February",
@@ -276,19 +297,30 @@ export function MonthlyInvoices() {
                         €{invoice.afterTaxEurAmount.toFixed(2)}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          onClick={() => setEditingInvoice(invoice)}
-                          className="mr-2"
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          onClick={() => handleDeleteInvoice(invoice)}
-                        >
-                          Delete
-                        </Button>
+                        <div className="flex justify-end gap-2">
+                          {invoice.pdfData && (
+                            <Button
+                              variant="ghost"
+                              onClick={() => handleDownloadPDF(invoice)}
+                              title="Download PDF"
+                            >
+                              📄
+                            </Button>
+                          )}
+                          <Button
+                            variant="ghost"
+                            onClick={() => setEditingInvoice(invoice)}
+                            className="mr-2"
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            onClick={() => handleDeleteInvoice(invoice)}
+                          >
+                            Delete
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}

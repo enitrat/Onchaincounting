@@ -43,6 +43,9 @@ const invoiceSchema = z.object({
   vatRate: z.number().min(0).max(100),
   cryptoPayments: z.array(cryptoPaymentSchema).default([]),
   notes: z.string().optional(),
+  // PDF data
+  pdfData: z.string().optional(),
+  pdfName: z.string().optional(),
 });
 
 type InvoiceFormData = z.infer<typeof invoiceSchema>;
@@ -85,6 +88,17 @@ export function InvoiceForm({ onSuccess, initialData }: Props) {
 
     setPdfUploading(true);
     try {
+      // Convert PDF to base64
+      const base64 = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64 = reader.result as string;
+          resolve(base64.split(",")[1]); // Remove data URL prefix
+        };
+        reader.readAsDataURL(file);
+      });
+
+      // Extract data from PDF
       const extractedData = await extractInvoiceData(file);
       const vatRate =
         extractedData.vatRate ??
@@ -96,6 +110,7 @@ export function InvoiceForm({ onSuccess, initialData }: Props) {
             )
           : undefined);
 
+      // Set form values
       if (extractedData.invoiceNumber) {
         setValue("invoiceNumber", extractedData.invoiceNumber);
       }
@@ -120,6 +135,11 @@ export function InvoiceForm({ onSuccess, initialData }: Props) {
       if (extractedData.clientName) {
         setValue("clientName", extractedData.clientName);
       }
+
+      // Store PDF data
+      setValue("pdfData", base64);
+      setValue("pdfName", file.name);
+
       toast.success("PDF data extracted successfully");
     } catch (error) {
       console.error("Error parsing PDF:", error);
@@ -127,6 +147,27 @@ export function InvoiceForm({ onSuccess, initialData }: Props) {
     } finally {
       setPdfUploading(false);
     }
+  };
+
+  const handleDownloadPDF = () => {
+    if (!initialData?.pdfData || !initialData?.pdfName) return;
+
+    const byteCharacters = atob(initialData.pdfData);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: "application/pdf" });
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = initialData.pdfName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   const handleAddCryptoPayment = () => {
@@ -183,6 +224,8 @@ export function InvoiceForm({ onSuccess, initialData }: Props) {
         notes: data.notes,
         createdAt: initialData?.createdAt || new Date(),
         updatedAt: new Date(),
+        pdfData: data.pdfData,
+        pdfName: data.pdfName,
       };
 
       await db.invoices.put(invoice);
@@ -207,14 +250,21 @@ export function InvoiceForm({ onSuccess, initialData }: Props) {
       className="space-y-6"
     >
       <div className="space-y-4">
-        <div>
-          <Label>Upload Invoice PDF</Label>
-          <Input
-            type="file"
-            accept=".pdf"
-            onChange={handlePDFUpload}
-            disabled={pdfUploading}
-          />
+        <div className="flex justify-between items-center">
+          <div className="space-y-2">
+            <Label>Upload Invoice PDF</Label>
+            <Input
+              type="file"
+              accept=".pdf"
+              onChange={handlePDFUpload}
+              disabled={pdfUploading}
+            />
+          </div>
+          {initialData?.pdfData && (
+            <Button type="button" variant="outline" onClick={handleDownloadPDF}>
+              Download Original PDF
+            </Button>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-4">

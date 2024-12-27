@@ -33,7 +33,9 @@ export interface Invoice {
     currency: CryptoCurrency;
     network: BlockchainNetwork;
   }[];
-  pdfPath?: string;
+  // PDF data
+  pdfData?: string; // Base64 encoded PDF content
+  pdfName?: string; // Original filename
   notes?: string;
   createdAt: Date;
   updatedAt: Date;
