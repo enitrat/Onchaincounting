@@ -39,7 +39,7 @@ export function Layout() {
       <header className="fixed top-0 w-full border-b bg-background z-50">
         <div className="container mx-auto max-w-5xl px-4">
           <div className="flex h-14 items-center justify-between">
-            <span className="font-bold">CryptAccounting</span>
+            <span className="font-bold">Onchaincounting</span>
             {/* Desktop Navigation */}
             <nav className="hidden md:flex space-x-4">
               {navigationItems.map((item) => (
@@ -87,11 +87,7 @@ export function Layout() {
       {/* Footer */}
       <footer className="border-t mt-auto">
         <div className="container mx-auto max-w-5xl px-4 py-6 md:flex md:items-center md:justify-between">
-          <div className="text-center md:text-left">
-          </div>
-          <p className="mt-4 text-center text-sm text-muted-foreground md:mt-0 md:text-right">
-            © {new Date().getFullYear()} CryptAccounting. All rights reserved.
-          </p>
+          <div className="text-center md:text-left"></div>
         </div>
       </footer>
     </div>

@@ -1,6 +1,6 @@
-# 
+# Onchaincounting
 
-A modern web application for viewing and managing crypto invoicing and EUR offramps through Monerium. Built with React, TypeScript, and Vite.
+A modern web application for viewing and managing onchain accounting, with support for invoicing and EUR offramps through Monerium. Built with React, TypeScript, and Vite.
 
 ## Features
 
@@ -21,21 +21,26 @@ A modern web application for viewing and managing crypto invoicing and EUR offra
 
 1. Clone the repository:
 2. Install dependencies:
+
 ```bash
 pnpm install
 ```
 
 3. Configure environment variables:
+
 ```bash
 cp .env.example .env
 ```
+
 Edit `.env` and add your Monerium credentials:
+
 ```
 VITE_MONERIUM_CLIENT_ID=your-client-id
 VITE_MONERIUM_REDIRECT_URI=http://localhost:5173
 ```
 
 4. Start the development server:
+
 ```bash
 pnpm dev
 ```
@@ -51,6 +56,7 @@ pnpm dev
 ### Database
 
 The application uses an in-browser database (Dexie.js) to store:
+
 - Invoices
 - Expenses
 - Monerium transactions
@@ -87,6 +93,7 @@ Data can be exported/imported using the built-in tools in the dashboard.
 ## Development
 
 ### Project Structure
+
 ```
 src/
   ├── components/     # React components
@@ -119,7 +126,7 @@ MIT License - see [LICENSE](LICENSE) for details
 ## Acknowledgments
 
 - Built as a demonstration of what can be achieved when coding with Cursor + Sonnet 3.5 in a very
-short amount of time. No code was written by hand.
+  short amount of time. No code was written by hand.
 - Built with [shadcn/ui](https://ui.shadcn.com/)
 - [Monerium](https://monerium.com) for EUR offramp capabilities
 - [Dexie.js](https://dexie.org) for the in-browser database
