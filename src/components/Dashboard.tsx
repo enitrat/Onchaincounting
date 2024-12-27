@@ -90,14 +90,13 @@ export function Dashboard() {
       db.invoices.where("date").between(startDate, endDate).toArray(),
       db.moneriumOrders
         .where("meta.placedAt")
-        .between(startDate.toISOString(), endDate.toISOString())
+        .between(startDate, endDate)
         .toArray(),
     ]);
 
     const offramps = moneriumOrders.filter(
       (order) => order.kind === OrderKind.redeem,
     );
-
     const summary: YearSummary = {
       year: selectedYear,
       invoices: {

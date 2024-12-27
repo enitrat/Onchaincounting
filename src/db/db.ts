@@ -95,13 +95,13 @@ export class CryptoAccountingDB extends Dexie {
 
           // Import new data
           await Promise.all([
-            this.invoices.bulkAdd(data.invoices),
-            this.expenses.bulkAdd(data.expenses),
-            this.withdrawals.bulkAdd(data.withdrawals),
-            this.monthlySummaries.bulkAdd(data.monthlySummaries),
-            this.yearlySummaries.bulkAdd(data.yearlySummaries),
+            this.invoices.bulkAdd(data.invoices || []),
+            this.expenses.bulkAdd(data.expenses || []),
+            this.withdrawals.bulkAdd(data.withdrawals || []),
+            this.monthlySummaries.bulkAdd(data.monthlySummaries || []),
+            this.yearlySummaries.bulkAdd(data.yearlySummaries || []),
             data.moneriumOrders &&
-              this.moneriumOrders.bulkAdd(data.moneriumOrders),
+              this.moneriumOrders.bulkAdd(data.moneriumOrders || []),
           ]);
         },
       );

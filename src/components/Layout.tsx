@@ -88,18 +88,6 @@ export function Layout() {
       <footer className="border-t mt-auto">
         <div className="container mx-auto max-w-5xl px-4 py-6 md:flex md:items-center md:justify-between">
           <div className="text-center md:text-left">
-            <p className="text-sm text-muted-foreground">
-              Built with shadcn/ui. The source code is available on{" "}
-              <a
-                href="https://github.com/yourusername/cryptaccounting"
-                target="_blank"
-                rel="noreferrer"
-                className="font-medium underline underline-offset-4"
-              >
-                GitHub
-              </a>
-              .
-            </p>
           </div>
           <p className="mt-4 text-center text-sm text-muted-foreground md:mt-0 md:text-right">
             © {new Date().getFullYear()} CryptAccounting. All rights reserved.

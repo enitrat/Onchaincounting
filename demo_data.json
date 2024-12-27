@@ -1,0 +1,118 @@
+{
+  "invoices": [
+    {
+      "id": "m56zj6p902aurb8kf22k7",
+      "date": "2024-12-21T23:00:00.000Z",
+      "invoiceNumber": "INVOICE-NO-1",
+      "clientName": "BigCorp",
+      "beforeTaxAmount": 105,
+      "afterTaxAmount": 126,
+      "vatRate": 20,
+      "vatAmount": 21,
+      "currency": "USD",
+      "beforeTaxEurAmount": 100.796006527791,
+      "afterTaxEurAmount": 120.331189401939,
+      "vatEurAmount": 20.535182874148,
+      "exchangeRate": 1.0417,
+      "cryptoPayments": [],
+      "notes": "",
+      "createdAt": "2024-12-27T16:46:40.557Z",
+      "updatedAt": "2024-12-27T16:46:40.557Z",
+      "pdfName": "INVOICE_NO_1.pdf"
+    },
+    {
+      "id": "n67zk7q01bvwc9lg33l8",
+      "date": "2024-11-15T23:00:00.000Z",
+      "invoiceNumber": "INVOICE-NO-2",
+      "clientName": "Defi Labs",
+      "beforeTaxAmount": 150,
+      "afterTaxAmount": 180,
+      "vatRate": 20,
+      "vatAmount": 30,
+      "currency": "USD",
+      "beforeTaxEurAmount": 143.99429503711,
+      "afterTaxEurAmount": 172.79315404453,
+      "vatEurAmount": 28.79885900742,
+      "exchangeRate": 1.0417,
+      "cryptoPayments": [],
+      "notes": "",
+      "createdAt": "2024-11-15T14:22:31.123Z",
+      "updatedAt": "2024-11-15T14:22:31.123Z",
+      "pdfName": "INVOICE_NO_2.pdf"
+    },
+    {
+      "id": "p89zm9s23dxye1nh44n9",
+      "date": "2024-10-01T22:00:00.000Z",
+      "invoiceNumber": "INVOICE-NO-3",
+      "clientName": "Crypto Ventures",
+      "beforeTaxAmount": 85,
+      "afterTaxAmount": 102,
+      "vatRate": 20,
+      "vatAmount": 17,
+      "currency": "USD",
+      "beforeTaxEurAmount": 81.59676719087,
+      "afterTaxEurAmount": 97.91612062904,
+      "vatEurAmount": 16.31935343817,
+      "exchangeRate": 1.0417,
+      "cryptoPayments": [],
+      "notes": "",
+      "createdAt": "2024-10-01T10:15:22.445Z",
+      "updatedAt": "2024-10-01T10:15:22.445Z",
+      "pdfName": "INVOICE_NO_3.pdf"
+    }
+  ],
+  "moneriumOrders": [
+    {
+      "id": "fc2b6138-2029-11ef-a596-6aa2f02b023f",
+      "kind": "redeem",
+      "profile": "b8a40262-bd07-11ee-aebc-b66a962a78c6",
+      "address": "0xC634E82321B8F7C367A8927694d27E70Ac437d39",
+      "chain": "gnosis",
+      "currency": "eur",
+      "amount": "50",
+      "counterpart": {
+        "identifier": {
+          "standard": "iban",
+          "iban": "DE89370400440532013000"
+        },
+        "details": {}
+      },
+      "memo": "January Invoice Payment",
+      "state": "processed",
+      "meta": {
+        "placedAt": "2024-01-20T14:30:00.000Z",
+        "processedAt": "2024-01-20T14:40:00.000Z",
+        "txHashes": [
+          "0x0bccd6b0fe55812a025fd37357a8a7df6ac46ab459bf00f3c323884a0f12382f"
+        ]
+      },
+      "lastSynced": "2024-12-27T18:18:58.239Z"
+    },
+    {
+      "id": "fc116338-2029-21ef-a596-6aa2f02b024f",
+      "kind": "redeem",
+      "profile": "b8a40262-bd07-11ee-aebc-b66a962a78c6",
+      "address": "0xC634E82321B8F7C367A8927694d27E70Ac437d39",
+      "chain": "gnosis",
+      "currency": "eur",
+      "amount": "70",
+      "counterpart": {
+        "identifier": {
+          "standard": "iban",
+          "iban": "DE89370400440532013000"
+        },
+        "details": {}
+      },
+      "memo": "February Invoice Payment",
+      "state": "processed",
+      "meta": {
+        "placedAt": "2024-02-20T15:30:00.000Z",
+        "processedAt": "2024-02-20T15:40:00.000Z",
+        "txHashes": [
+          "0xb24083590f75cb9b81ca88d35b9e7af9a9b5fccc0679bed9f2bb4ecbecab89a3"
+        ]
+      },
+      "lastSynced": "2024-12-27T18:18:58.239Z"
+    }
+  ]
+}
