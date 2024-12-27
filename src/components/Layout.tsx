@@ -1,37 +1,37 @@
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { Dashboard } from './Dashboard';
-import { Reports } from './Reports';
-import { MonthlyInvoices } from './MonthlyInvoices';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { Dashboard } from "./Dashboard";
+import { Reports } from "./Reports";
+import { MonthlyInvoices } from "./MonthlyInvoices";
 
-type View = 'dashboard' | 'invoices' | 'withdrawals' | 'reports';
+type View = "dashboard" | "invoices" | "withdrawals" | "reports";
 
 const navigationItems: { id: View; label: string }[] = [
-    { id: 'dashboard', label: 'Dashboard' },
-    { id: 'invoices', label: 'Invoices' },
-    { id: 'withdrawals', label: 'Withdrawals' },
-    { id: 'reports', label: 'Reports' },
+  { id: "dashboard", label: "Dashboard" },
+  { id: "invoices", label: "Invoices" },
+  { id: "withdrawals", label: "Withdrawals" },
+  { id: "reports", label: "Reports" },
 ];
 
 export function Layout() {
-  const [currentView, setCurrentView] = useState('overview');
+  const [currentView, setCurrentView] = useState("overview");
 
   const renderContent = () => {
     switch (currentView) {
-        case 'dashboard':
-            return <Dashboard />;
-        case 'invoices':
-            return <MonthlyInvoices />;
-        case 'withdrawals':
-            // TODO: Implement MonthlyWithdrawals component
-            return <div>Withdrawals (Coming Soon)</div>;
-        case 'reports':
-            return <Reports />;
-        default:
-            return <Dashboard />;
+      case "dashboard":
+        return <Dashboard />;
+      case "invoices":
+        return <MonthlyInvoices />;
+      case "withdrawals":
+        // TODO: Implement MonthlyWithdrawals component
+        return <div>Withdrawals (Coming Soon)</div>;
+      case "reports":
+        return <Reports />;
+      default:
+        return <Dashboard />;
     }
-};
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -45,7 +45,7 @@ export function Layout() {
               {navigationItems.map((item) => (
                 <Button
                   key={item.id}
-                  variant={currentView === item.id ? 'secondary' : 'outline'}
+                  variant={currentView === item.id ? "secondary" : "outline"}
                   onClick={() => setCurrentView(item.id)}
                 >
                   {item.label}
@@ -60,19 +60,19 @@ export function Layout() {
       <div className="md:hidden fixed top-14 w-full bg-background border-b z-40">
         <div className="container mx-auto max-w-5xl px-4">
           <nav className="grid grid-cols-2 gap-2 p-4">
-              {navigationItems.map((item) => (
-                  <Button
-                      key={item.id}
-                      variant={currentView === item.id ? "secondary" : "outline"}
-                      className={cn(
-                          "justify-start",
-                          currentView === item.id && "bg-muted font-medium"
-                      )}
-                      onClick={() => setCurrentView(item.id)}
-                  >
-                      {item.label}
-                  </Button>
-              ))}
+            {navigationItems.map((item) => (
+              <Button
+                key={item.id}
+                variant={currentView === item.id ? "secondary" : "outline"}
+                className={cn(
+                  "justify-start",
+                  currentView === item.id && "bg-muted font-medium",
+                )}
+                onClick={() => setCurrentView(item.id)}
+              >
+                {item.label}
+              </Button>
+            ))}
           </nav>
         </div>
       </div>
