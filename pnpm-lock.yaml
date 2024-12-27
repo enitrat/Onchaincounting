@@ -11,6 +11,12 @@ dependencies:
   '@mikecousins/react-pdf':
     specifier: ^7.1.0
     version: 7.1.0(pdfjs-dist@4.9.155)(react-dom@18.3.1)(react@18.3.1)
+  '@monerium/sdk':
+    specifier: ^3.0.1
+    version: 3.0.1
+  '@monerium/sdk-react-provider':
+    specifier: ^1.0.1
+    version: 1.0.1(@tanstack/react-query@5.62.11)(@types/react@18.3.18)(react-dom@18.3.1)(react@18.3.1)
   '@radix-ui/react-accordion':
     specifier: ^1.2.2
     version: 1.2.2(@types/react-dom@18.3.5)(@types/react@18.3.18)(react-dom@18.3.1)(react@18.3.1)
@@ -92,6 +98,9 @@ dependencies:
   '@radix-ui/react-tooltip':
     specifier: ^1.1.6
     version: 1.1.6(@types/react-dom@18.3.5)(@types/react@18.3.18)(react-dom@18.3.1)(react@18.3.1)
+  '@tanstack/react-query':
+    specifier: ^5.62.11
+    version: 5.62.11(react@18.3.1)
   '@types/pdfjs-dist':
     specifier: ^2.10.378
     version: 2.10.378
@@ -116,6 +125,9 @@ dependencies:
   dexie-react-hooks:
     specifier: ^1.1.7
     version: 1.1.7(@types/react@18.3.18)(dexie@4.0.10)(react@18.3.1)
+  dotenv:
+    specifier: ^16.4.7
+    version: 16.4.7
   embla-carousel-react:
     specifier: ^8.5.1
     version: 8.5.1(react@18.3.1)
@@ -817,6 +829,28 @@ packages:
       react-dom: 18.3.1(react@18.3.1)
     dev: false
     bundledDependencies: []
+
+  /@monerium/sdk-react-provider@1.0.1(@tanstack/react-query@5.62.11)(@types/react@18.3.18)(react-dom@18.3.1)(react@18.3.1):
+    resolution: {integrity: sha512-cw1lkLJuyNojn75GI3wabZTCNiP5UMOWx8OWZA2KJ8/NIav+9IMWQL3TismYg5iJVb3rMSpKZKZ5pPr+Xkk9Kg==}
+    peerDependencies:
+      '@tanstack/react-query': '>=5.0.0'
+      '@types/react': ^18.2.61
+      react: '>=18.2.0'
+      react-dom: '>=18.2.0'
+    dependencies:
+      '@monerium/sdk': 3.0.1
+      '@tanstack/react-query': 5.62.11(react@18.3.1)
+      '@types/react': 18.3.18
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    dev: false
+
+  /@monerium/sdk@3.0.1:
+    resolution: {integrity: sha512-Hnq/r6sGKGL39VogzqJ2MGk4DBIGE9OFAw69bXF6DKMFMPSJPd6yvIhfYtA/4rU1LKndAIGTjp3XKzLxyTklvg==}
+    engines: {node: '>= 16.15'}
+    dependencies:
+      crypto-js: 4.2.0
+    dev: false
 
   /@napi-rs/canvas-android-arm64@0.1.65:
     resolution: {integrity: sha512-ZYwqFYEKcT5Zr8lbiaJNJj/poLaeK2TncolY914r+gD2TJNeP7ZqvE7A2SX/1C9MB4E3DQEwm3YhL3WEf0x3MQ==}
@@ -2545,6 +2579,19 @@ packages:
     dev: true
     optional: true
 
+  /@tanstack/query-core@5.62.9:
+    resolution: {integrity: sha512-lwePd8hNYhyQ4nM/iRQ+Wz2cDtspGeZZHFZmCzHJ7mfKXt+9S301fULiY2IR2byJYY6Z03T427E5PoVfMexHjw==}
+    dev: false
+
+  /@tanstack/react-query@5.62.11(react@18.3.1):
+    resolution: {integrity: sha512-Xb1nw0cYMdtFmwkvH9+y5yYFhXvLRCnXoqlzSw7UkqtCVFq3cG8q+rHZ2Yz1XrC+/ysUaTqbLKJqk95mCgC1oQ==}
+    peerDependencies:
+      react: ^18 || ^19
+    dependencies:
+      '@tanstack/query-core': 5.62.9
+      react: 18.3.1
+    dev: false
+
   /@types/babel__core@7.20.5:
     resolution: {integrity: sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA==}
     dependencies:
@@ -3039,6 +3086,10 @@ packages:
       shebang-command: 2.0.0
       which: 2.0.2
 
+  /crypto-js@4.2.0:
+    resolution: {integrity: sha512-KALDyEYgpY+Rlob/iriUtjV6d5Eq+Y191A5g4UqLAi8CyGP9N1+FdVbkc1SxKc2r4YAYqG8JzO2KGL+AizD70Q==}
+    dev: false
+
   /cssesc@3.0.0:
     resolution: {integrity: sha512-/Tb/JcjK111nNScGob5MNtsntNM1aCNUDipB/TkwZFhyDrrE47SOx/18wF2bbjgc3ZzCSKW1T5nt5EbFoAz/Vg==}
     engines: {node: '>=4'}
@@ -3221,6 +3272,11 @@ packages:
     dependencies:
       '@babel/runtime': 7.26.0
       csstype: 3.1.3
+    dev: false
+
+  /dotenv@16.4.7:
+    resolution: {integrity: sha512-47qPchRCykZC03FhkYAhrvwU4xDBFIj1QPqaarj6mdM/hgUzfPHcpkHJOn3mJAufFeeAxAzeGsr5X0M4k6fLZQ==}
+    engines: {node: '>=12'}
     dev: false
 
   /eastasianwidth@0.2.0:

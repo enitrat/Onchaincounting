@@ -4,18 +4,19 @@ import { cn } from "@/lib/utils";
 import { Dashboard } from "./Dashboard";
 import { Reports } from "./Reports";
 import { MonthlyInvoices } from "./MonthlyInvoices";
+import { Monerium } from "./Monerium";
 
-type View = "dashboard" | "invoices" | "withdrawals" | "reports";
+type View = "dashboard" | "invoices" | "monerium" | "reports";
 
 const navigationItems: { id: View; label: string }[] = [
   { id: "dashboard", label: "Dashboard" },
   { id: "invoices", label: "Invoices" },
-  { id: "withdrawals", label: "Withdrawals" },
+  { id: "monerium", label: "Monerium" },
   { id: "reports", label: "Reports" },
 ];
 
 export function Layout() {
-  const [currentView, setCurrentView] = useState("overview");
+  const [currentView, setCurrentView] = useState<View>("dashboard");
 
   const renderContent = () => {
     switch (currentView) {
@@ -23,9 +24,8 @@ export function Layout() {
         return <Dashboard />;
       case "invoices":
         return <MonthlyInvoices />;
-      case "withdrawals":
-        // TODO: Implement MonthlyWithdrawals component
-        return <div>Withdrawals (Coming Soon)</div>;
+      case "monerium":
+        return <Monerium />;
       case "reports":
         return <Reports />;
       default:

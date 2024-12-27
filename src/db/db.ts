@@ -1,4 +1,5 @@
 import Dexie, { Table } from "dexie";
+import React from "react";
 import {
   Invoice,
   Expense,
@@ -6,6 +7,7 @@ import {
   MonthlySummary,
   YearlySummary,
 } from "../types/types";
+import { Order } from "@monerium/sdk";
 
 export class CryptoAccountingDB extends Dexie {
   invoices!: Table<Invoice, string>;
@@ -13,6 +15,7 @@ export class CryptoAccountingDB extends Dexie {
   withdrawals!: Table<Withdrawal, string>;
   monthlySummaries!: Table<MonthlySummary, string>;
   yearlySummaries!: Table<YearlySummary, number>;
+  moneriumOrders!: Table<Order & { lastSynced: string }>;
 
   constructor() {
     super("CryptoAccountingDB");
@@ -24,6 +27,11 @@ export class CryptoAccountingDB extends Dexie {
       monthlySummaries: "[year+month], year, month",
       yearlySummaries: "year",
     });
+
+    // Add moneriumOrders table in version 2
+    this.version(2).stores({
+      moneriumOrders: "id, meta.placedAt, meta.state, kind, amount",
+    });
   }
 
   // Export the entire database to a JSON file
@@ -34,6 +42,7 @@ export class CryptoAccountingDB extends Dexie {
       withdrawals: await this.withdrawals.toArray(),
       monthlySummaries: await this.monthlySummaries.toArray(),
       yearlySummaries: await this.yearlySummaries.toArray(),
+      moneriumOrders: await this.moneriumOrders.toArray(),
     };
 
     // Convert dates to ISO strings for proper serialization
@@ -71,6 +80,7 @@ export class CryptoAccountingDB extends Dexie {
           this.withdrawals,
           this.monthlySummaries,
           this.yearlySummaries,
+          this.moneriumOrders,
         ],
         async () => {
           // Clear existing data
@@ -80,6 +90,7 @@ export class CryptoAccountingDB extends Dexie {
             this.withdrawals.clear(),
             this.monthlySummaries.clear(),
             this.yearlySummaries.clear(),
+            this.moneriumOrders.clear(),
           ]);
 
           // Import new data
@@ -89,6 +100,8 @@ export class CryptoAccountingDB extends Dexie {
             this.withdrawals.bulkAdd(data.withdrawals),
             this.monthlySummaries.bulkAdd(data.monthlySummaries),
             this.yearlySummaries.bulkAdd(data.yearlySummaries),
+            data.moneriumOrders &&
+              this.moneriumOrders.bulkAdd(data.moneriumOrders),
           ]);
         },
       );
@@ -122,6 +135,7 @@ export class CryptoAccountingDB extends Dexie {
           this.withdrawals,
           this.monthlySummaries,
           this.yearlySummaries,
+          this.moneriumOrders,
         ],
         async () => {
           // Merge new data with existing data
@@ -131,6 +145,8 @@ export class CryptoAccountingDB extends Dexie {
             this.withdrawals.bulkPut(data.withdrawals),
             this.monthlySummaries.bulkPut(data.monthlySummaries),
             this.yearlySummaries.bulkPut(data.yearlySummaries),
+            data.moneriumOrders &&
+              this.moneriumOrders.bulkPut(data.moneriumOrders),
           ]);
         },
       );
@@ -140,6 +156,33 @@ export class CryptoAccountingDB extends Dexie {
         "Failed to merge database. Please check the file format.",
       );
     }
+  }
+
+  // Sync Monerium orders with local database
+  async syncMoneriumOrders(orders: Order[]) {
+    await this.transaction("rw", this.moneriumOrders, async () => {
+      const now = new Date().toISOString();
+      const ordersToAdd = orders.map((order) => ({
+        ...order,
+        lastSynced: now,
+      }));
+
+      await this.moneriumOrders.bulkPut(ordersToAdd);
+
+      // Store last sync timestamp
+      localStorage.setItem("monerium_last_sync", now);
+    });
+  }
+
+  // Get sync status
+  async getMoneriumSyncStatus() {
+    const lastSync = localStorage.getItem("monerium_last_sync");
+    const count = await this.moneriumOrders.count();
+
+    return {
+      lastSynced: lastSync ? new Date(lastSync) : null,
+      hasLocalData: count > 0,
+    };
   }
 }
 
@@ -196,4 +239,41 @@ export async function importDatabase(
   } else {
     await db.importData(file);
   }
+}
+
+// Add hook for Monerium orders
+export function useMoneriumOrders() {
+  return db.moneriumOrders.toArray();
+}
+
+// Add hook for Monerium sync status
+export function useMoneriumSyncStatus() {
+  const [status, setStatus] = React.useState<{
+    lastSynced: Date | null;
+    hasLocalData: boolean;
+  }>({
+    lastSynced: null,
+    hasLocalData: false,
+  });
+
+  React.useEffect(() => {
+    const checkStatus = async () => {
+      const currentStatus = await db.getMoneriumSyncStatus();
+      setStatus(currentStatus);
+    };
+
+    // Initial check
+    checkStatus();
+
+    // Check status every minute and when local storage changes
+    const interval = setInterval(checkStatus, 60000);
+    window.addEventListener("storage", () => checkStatus());
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("storage", () => checkStatus());
+    };
+  }, []);
+
+  return status;
 }

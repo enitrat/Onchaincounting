@@ -42,6 +42,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { DatabaseActions } from "./DatabaseActions";
+import { OrderKind } from "@monerium/sdk";
 
 interface YearSummary {
   year: number;
@@ -55,9 +56,8 @@ interface YearSummary {
     totalVatEurAmount: number;
     count: number;
   };
-  withdrawals: {
-    totalSourceUSD: number;
-    totalTargetEUR: number;
+  offramps: {
+    totalEurAmount: number;
     count: number;
   };
 }
@@ -68,12 +68,10 @@ interface MonthSummary {
   invoicesUSD: number;
   invoicesCHF: number;
   invoicesEUR: number;
-  withdrawalsEUR: number;
-  profitEUR: number;
+  offrampsEUR: number;
   // Cumulative amounts
-  cumulativeUSD: number;
-  cumulativeCHF: number;
   cumulativeEUR: number;
+  cumulativeOfframpEUR: number;
 }
 
 export function Dashboard() {
@@ -81,17 +79,24 @@ export function Dashboard() {
     new Date().getFullYear(),
   );
   const [activeTab, setActiveTab] = React.useState<
-    "overview" | "invoices" | "withdrawals"
+    "overview" | "invoices" | "offramps"
   >("overview");
 
   const yearData = useLiveQuery(async () => {
     const startDate = new Date(selectedYear, 0, 1);
     const endDate = new Date(selectedYear, 11, 31, 23, 59, 59);
 
-    const [invoices, withdrawals] = await Promise.all([
+    const [invoices, moneriumOrders] = await Promise.all([
       db.invoices.where("date").between(startDate, endDate).toArray(),
-      db.withdrawals.where("date").between(startDate, endDate).toArray(),
+      db.moneriumOrders
+        .where("meta.placedAt")
+        .between(startDate.toISOString(), endDate.toISOString())
+        .toArray(),
     ]);
+
+    const offramps = moneriumOrders.filter(
+      (order) => order.kind === OrderKind.redeem,
+    );
 
     const summary: YearSummary = {
       year: selectedYear,
@@ -122,13 +127,9 @@ export function Dashboard() {
         ),
         count: invoices.length,
       },
-      withdrawals: {
-        totalSourceUSD: withdrawals.reduce(
-          (sum, w) => sum + (w.sourceCurrency === "USDC" ? w.sourceAmount : 0),
-          0,
-        ),
-        totalTargetEUR: withdrawals.reduce((sum, w) => sum + w.targetAmount, 0),
-        count: withdrawals.length,
+      offramps: {
+        totalEurAmount: offramps.reduce((sum, w) => sum + Number(w.amount), 0),
+        count: offramps.length,
       },
     };
 
@@ -138,8 +139,9 @@ export function Dashboard() {
         const monthInvoices = invoices.filter(
           (inv) => new Date(inv.date).getMonth() === month,
         );
-        const monthWithdrawals = withdrawals.filter(
-          (w) => new Date(w.date).getMonth() === month,
+        const monthOfframps = offramps.filter(
+          (w) =>
+            new Date(w.meta.approvedAt || w.meta.placedAt).getMonth() === month,
         );
 
         const usdInvoices = monthInvoices.filter(
@@ -152,29 +154,23 @@ export function Dashboard() {
         const monthData = {
           month,
           invoicesUSD: usdInvoices.reduce(
-            (sum, inv) => sum + inv.beforeTaxAmount,
+            (sum, inv) => sum + inv.afterTaxAmount,
             0,
           ),
           invoicesCHF: chfInvoices.reduce(
-            (sum, inv) => sum + inv.beforeTaxAmount,
+            (sum, inv) => sum + inv.afterTaxAmount,
             0,
           ),
           invoicesEUR: monthInvoices.reduce(
-            (sum, inv) => sum + inv.beforeTaxEurAmount,
+            (sum, inv) => sum + inv.afterTaxAmount / inv.exchangeRate,
             0,
           ),
-          withdrawalsEUR: monthWithdrawals.reduce(
-            (sum, w) => sum + w.targetAmount,
+          offrampsEUR: monthOfframps.reduce(
+            (sum, w) => sum + Number(w.amount),
             0,
           ),
-          profitEUR:
-            monthInvoices.reduce(
-              (sum, inv) => sum + inv.beforeTaxEurAmount,
-              0,
-            ) - monthWithdrawals.reduce((sum, w) => sum + w.targetAmount, 0),
-          cumulativeUSD: 0, // Will be calculated after
-          cumulativeCHF: 0, // Will be calculated after
           cumulativeEUR: 0, // Will be calculated after
+          cumulativeOfframpEUR: 0, // Will be calculated after
         };
 
         return monthData;
@@ -182,16 +178,13 @@ export function Dashboard() {
     );
 
     // Calculate cumulative amounts
-    let runningUSD = 0,
-      runningCHF = 0,
-      runningEUR = 0;
+    let runningEUR = 0,
+      runningOfframpEUR = 0;
     monthSummaries.forEach((month) => {
-      runningUSD += month.invoicesUSD;
-      runningCHF += month.invoicesCHF;
       runningEUR += month.invoicesEUR;
-      month.cumulativeUSD = runningUSD;
-      month.cumulativeCHF = runningCHF;
+      runningOfframpEUR += month.offrampsEUR;
       month.cumulativeEUR = runningEUR;
+      month.cumulativeOfframpEUR = runningOfframpEUR;
     });
 
     return { summary, monthSummaries };
@@ -261,10 +254,10 @@ export function Dashboard() {
             Invoices
           </TabsTrigger>
           <TabsTrigger
-            value="withdrawals"
+            value="offramps"
             className="data-[state=active]:bg-background data-[state=active]:text-foreground w-full"
           >
-            Withdrawals
+            Offramps
           </TabsTrigger>
         </TabsList>
         <TabsContent value="overview" className="space-y-8">
@@ -295,18 +288,15 @@ export function Dashboard() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Withdrawals</CardTitle>
-                <CardDescription>Total withdrawn amount</CardDescription>
+                <CardTitle>Offramps</CardTitle>
+                <CardDescription>Total offramped amount</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-blue-600">
-                  €{summary.withdrawals.totalTargetEUR.toFixed(2)}
+                  €{summary.offramps.totalEurAmount.toFixed(2)}
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  From ${summary.withdrawals.totalSourceUSD.toFixed(2)}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {summary.withdrawals.count} withdrawals
+                  {summary.offramps.count} offramps
                 </p>
               </CardContent>
             </Card>
@@ -314,7 +304,7 @@ export function Dashboard() {
             <Card>
               <CardHeader>
                 <CardTitle>Net Profit (EUR)</CardTitle>
-                <CardDescription>Before withdrawals</CardDescription>
+                <CardDescription>Before offramps</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className={`text-3xl font-bold text-green-600`}>
@@ -339,6 +329,14 @@ export function Dashboard() {
                     label: "Cumulative Income (EUR)",
                     color: "hsl(var(--chart-2))",
                   },
+                  offrampsEUR: {
+                    label: "Monthly Offramps (EUR)",
+                    color: "hsl(var(--chart-3))",
+                  },
+                  cumulativeOfframpEUR: {
+                    label: "Cumulative Offramp (EUR)",
+                    color: "hsl(var(--chart-4))",
+                  },
                 }}
                 className="h-[400px]"
               >
@@ -361,12 +359,27 @@ export function Dashboard() {
                       name="Monthly Income (EUR)"
                       fill="var(--color-monthlyEUR)"
                     />
+                    <Bar
+                      yAxisId="left"
+                      dataKey="offrampsEUR"
+                      name="Monthly Offramps (EUR)"
+                      fill="var(--color-offrampsEUR)"
+                    />
                     <Line
                       yAxisId="right"
                       type="monotone"
                       dataKey="cumulativeEUR"
                       name="Cumulative Income (EUR)"
                       stroke="var(--color-cumulativeEUR)"
+                      strokeWidth={2}
+                      dot={false}
+                    />
+                    <Line
+                      yAxisId="right"
+                      type="monotone"
+                      dataKey="cumulativeOfframpEUR"
+                      name="Cumulative Offramp (EUR)"
+                      stroke="var(--color-cumulativeOfframpEUR)"
                       strokeWidth={2}
                       dot={false}
                     />
@@ -386,10 +399,7 @@ export function Dashboard() {
                   <TableRow>
                     <TableHead>Month</TableHead>
                     <TableHead className="text-right">Income (USD)</TableHead>
-                    <TableHead className="text-right">
-                      Withdrawals (EUR)
-                    </TableHead>
-                    <TableHead className="text-right">Profit (EUR)</TableHead>
+                    <TableHead className="text-right">Offramps (EUR)</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -405,16 +415,7 @@ export function Dashboard() {
                         </span>
                       </TableCell>
                       <TableCell className="text-right">
-                        €{month.withdrawalsEUR.toFixed(2)}
-                      </TableCell>
-                      <TableCell
-                        className={`text-right font-medium ${
-                          month.profitEUR > 0
-                            ? "text-green-600"
-                            : "text-red-600"
-                        }`}
-                      >
-                        €{month.profitEUR.toFixed(2)}
+                        €{month.offrampsEUR.toFixed(2)}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -437,14 +438,14 @@ export function Dashboard() {
             </CardContent>
           </Card>
         </TabsContent>
-        <TabsContent value="withdrawals">
+        <TabsContent value="offramps">
           <Card>
             <CardHeader>
-              <CardTitle>Withdrawals</CardTitle>
+              <CardTitle>Offramps</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground">
-                Withdrawal details will be displayed here.
+                Offramp details will be displayed here.
               </p>
             </CardContent>
           </Card>
