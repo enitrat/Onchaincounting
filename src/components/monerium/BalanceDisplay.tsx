@@ -14,20 +14,45 @@ import {
 import { Currency } from "@monerium/sdk";
 
 export function BalanceDisplay() {
-  const { data: profile } = useProfile();
-  const { data: addressResponse } = useAddresses({ profile: profile?.id });
-  const { data: balances, isLoading } = useBalances({
-    address: addressResponse?.addresses[0].address!,
-    chain: "gnosis",
-    currencies: [Currency.eur],
+  const { data: profile, isLoading: profileLoading } = useProfile();
+  const { data: addressResponse, isLoading: addressLoading } = useAddresses({
+    profile: profile?.id,
   });
 
-  if (isLoading) {
+  const currentAddress = addressResponse?.addresses?.[0]?.address;
+
+  const { data: balances, isLoading: balanceLoading } = useBalances({
+    address: currentAddress ?? "",
+    chain: "gnosis",
+    currencies: [Currency.eur],
+    query: {
+      enabled: !!currentAddress,
+      refetchOnMount: true,
+      refetchOnWindowFocus: true,
+      retry: 2,
+      staleTime: 30000,
+    },
+  });
+
+  if (profileLoading || addressLoading || balanceLoading) {
     return (
       <Card>
         <CardHeader>
           <CardTitle>Monerium Balance</CardTitle>
           <CardDescription>Loading...</CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
+
+  if (!profile || !addressResponse?.addresses?.[0]) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Monerium Balance</CardTitle>
+          <CardDescription>
+            Please connect your Monerium account first
+          </CardDescription>
         </CardHeader>
       </Card>
     );

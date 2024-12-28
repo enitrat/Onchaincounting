@@ -90,7 +90,7 @@ export function Dashboard() {
       db.invoices.where("date").between(startDate, endDate).toArray(),
       db.moneriumOrders
         .where("meta.placedAt")
-        .between(startDate, endDate)
+        .between(startDate.toISOString(), endDate.toISOString())
         .toArray(),
     ]);
 

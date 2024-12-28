@@ -61,10 +61,13 @@ export class CryptoAccountingDB extends Dexie {
     try {
       const text = await file.text();
       const data = JSON.parse(text, (key, value) => {
-        // Convert ISO date strings back to Date objects
+        // Convert ISO date strings back to Date objects, except for moneriumOrders
         if (
           typeof value === "string" &&
-          /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.*Z$/.test(value)
+          /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.*Z$/.test(value) &&
+          !key.startsWith("meta.") && // Skip moneriumOrders dates
+          !key.startsWith("placedAt") &&
+          !key.startsWith("approvedAt")
         ) {
           return new Date(value);
         }
@@ -101,7 +104,7 @@ export class CryptoAccountingDB extends Dexie {
             this.monthlySummaries.bulkAdd(data.monthlySummaries || []),
             this.yearlySummaries.bulkAdd(data.yearlySummaries || []),
             data.moneriumOrders &&
-              this.moneriumOrders.bulkAdd(data.moneriumOrders || []),
+              this.moneriumOrders.bulkAdd(data.moneriumOrders),
           ]);
         },
       );
@@ -223,7 +226,7 @@ export async function exportDatabase(): Promise<void> {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `onchaincounting-backup-${new Date().toISOString().split("T")[0]}.json`;
+  a.download = `cryptaccounting-backup-${new Date().toISOString().split("T")[0]}.json`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
