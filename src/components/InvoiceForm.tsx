@@ -199,8 +199,6 @@ export function InvoiceForm({ onSuccess, initialData }: Props) {
   };
 
   const onSubmit = async (data: InvoiceFormData) => {
-    console.log("Attempting submit...");
-    console.log("Form data:", data);
     try {
       const exchangeRate = data.exchangeRate;
       const toEur = 1 / exchangeRate;

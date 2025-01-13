@@ -30,7 +30,6 @@ function extractCurrencyAndAmount(text: string): {
 
   for (const pattern of patterns) {
     const match = text.match(pattern);
-    console.log(match);
     if (match) {
       try {
         // Handle dollar sign pattern first
@@ -47,7 +46,6 @@ function extractCurrencyAndAmount(text: string): {
         const currency = (
           isCurrencyFirst ? match[1] : match[2]
         ).toUpperCase() as "USD" | "CHF";
-        console.log(amount, currency);
 
         if (currency === "USD" || currency === "CHF") {
           return { amount, currency };
@@ -81,7 +79,6 @@ export async function extractInvoiceData(
 ): Promise<ExtractedInvoiceData> {
   try {
     const extractedText = await pdfToText(file);
-    console.log(extractedText);
     const { amount: afterTaxAmount, currency } =
       extractCurrencyAndAmount(extractedText);
 
@@ -158,7 +155,6 @@ function extractDate(text: string): Date | undefined {
 
   for (const pattern of patterns) {
     const match = text.match(pattern);
-    console.log(match);
     if (match?.[1]) {
       const dateString = match[1].replace(/[\s]/g, "");
 
